@@ -27,25 +27,20 @@ type SubTask = {
     sub_task_assignee: string;
 };
 
-  type Data={
+  type SubtaskData={
     Data:SubTask
+    users:string[]
   }
 
-const EditSubTask = (task:Data) => {
+const EditSubTask = ({Data,users}:SubtaskData) => {
     const [dialogIsOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const location=useLocation();
     const queryParams=new URLSearchParams(location.search);
     const project_id=queryParams.get('project_id')
-    const [userData,setUserData]=useState<any>(null)
-    useEffect(() => {
-        const UserData=async()=>{
-            const response = await apiGetUsersList();
-            setUserData(response.data)
-        }
-        UserData();
-
-    },[project_id])
+    console.log(users);
+    
+  
 const openDialog = () => {
     setIsOpen(true)
 }
@@ -68,9 +63,9 @@ const priorityOptions = [
     { label: "Under Revision", value: "Under Revision" },
   ];
   
-  const userOptions = userData?.map((user:any) => ({
-    label: user.username,
-    value: user.username
+  const userOptions = users?.map((user:any) => ({
+    label: user,
+    value: user
   }));
   
   const formateDate = (dateString:string) => {
@@ -92,18 +87,18 @@ const priorityOptions = [
                        initialValues={{
                         user_id: localStorage.getItem('userId') || '',
                         project_id: project_id || '',
-                        task_id: task.Data.task_id,
-                        sub_task_id: task.Data.sub_task_id,
-                        sub_task_name: task.Data.sub_task_name,
-                        sub_task_description: task.Data.sub_task_description,
-                        actual_sub_task_start_date: new Date(task.Data.actual_sub_task_start_date),
-                        actual_sub_task_end_date: new Date(task.Data.actual_sub_task_end_date),
-                        estimated_sub_task_start_date: new Date(task.Data.estimated_sub_task_start_date),
-                        estimated_sub_task_end_date: new Date(task.Data.estimated_sub_task_end_date),
-                        sub_task_status: task.Data.sub_task_status, 
-                        sub_task_priority: task.Data.sub_task_priority, 
-                        sub_task_assignee: task.Data.sub_task_assignee,
-                        sub_task_reporter: task.Data.sub_task_reporter,
+                        task_id: Data?.task_id,
+                        sub_task_id: Data?.sub_task_id,
+                        sub_task_name: Data?.sub_task_name,
+                        sub_task_description: Data?.sub_task_description,
+                        actual_sub_task_start_date: new Date(Data?.actual_sub_task_start_date),
+                        actual_sub_task_end_date: new Date(Data?.actual_sub_task_end_date),
+                        estimated_sub_task_start_date: new Date(Data?.estimated_sub_task_start_date),
+                        estimated_sub_task_end_date: new Date(Data?.estimated_sub_task_end_date),
+                        sub_task_status: Data?.sub_task_status, 
+                        sub_task_priority: Data?.sub_task_priority, 
+                        sub_task_assignee: Data?.sub_task_assignee,
+                        sub_task_reporter: Data?.sub_task_reporter,
                         remark: '',
                       }}
                       validationSchema={Yup.object().shape({
@@ -127,12 +122,8 @@ const priorityOptions = [
                         sub_task_reporter: Yup.string().required('Subtask Reporter is required'),
                       })}
                      onSubmit={async(values, actions) => {
-                         const data={
-                                
-                         }
                          setLoading(true)
                          const response = await apiGetCrmProjectsSubTaskUpdate(values)
-                         const responseTimer=await apiGetCrmProjectsSingleSubTaskTimer(data);
                          console.log('response', response);
                          setLoading(false)
                          if(response.code===200){
@@ -171,7 +162,7 @@ const priorityOptions = [
                                 <Field name='sub_task_assignee' placeholder='Subtask Assignee'>
                                     {({field}:any)=>(
                                         <Select
-                                        placeholder={task.Data.sub_task_assignee}
+                                        placeholder={Data?.sub_task_assignee}
                                         options={userOptions}
                                         name='sub_task_assignee'
                                         onChange={(value:any) => { field.onChange({ target: {name:'sub_task_assignee', value: value?.value } }) }}
@@ -187,7 +178,7 @@ const priorityOptions = [
                                 <Field name='sub_task_status'  placeholder=''>
                                     {({field}:any)=>(
                                         <Select
-                                        placeholder={task.Data.sub_task_status}
+                                        placeholder={Data?.sub_task_status}
                                         options={statusOptions}
                                         name='sub_task_status'
                                         onChange={(value) => { field.onChange({ target: {name:'sub_task_status', value: value?.value } }) }}
@@ -257,7 +248,7 @@ const priorityOptions = [
                                 <Field name='sub_task_reporter' placeholder='Reporting to'>
                                     {({field}:any)=>(
                                         <Select
-                                        placeholder={task.Data.sub_task_reporter}
+                                        placeholder={Data?.sub_task_reporter}
                                         options={userOptions}
                                         name='sub_task_reporter'
                                         onChange={(value:any) => { field.onChange({ target: {name:'sub_task_reporter', value: value?.value } }) }}
@@ -277,7 +268,7 @@ const priorityOptions = [
                                         <Select
                                         name='sub_task_priority'
                                         options={priorityOptions}
-                                        value={priorityOptions.find((option)=>option.value===task.Data.sub_task_priority)}
+                                        value={priorityOptions.find((option)=>option.value===Data?.sub_task_priority)}
                                         onChange={(value) => { field.onChange({ target: {name:'sub_task_priority', value: value?.value } }) }}
                                         />
                                     )}          

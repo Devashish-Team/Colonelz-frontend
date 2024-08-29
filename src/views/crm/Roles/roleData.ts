@@ -19,7 +19,9 @@ type RoleAccessPermissions = {
     | "contract"
     | "quotation"
     | "addMember"
-    | "role";
+    | "userArchive"
+    | "role"
+    | "companyData";
   
   type RoleAccessData = {
     message: string;

@@ -203,14 +203,28 @@ const ArchivedUsers = () => {
 
             { header: 'Action',id:"action",
             cell: ({row}) => {
+                const {roleData}=useRoleContext()
+                const role=localStorage.getItem('role') || ''
+                const restoreAccess=roleData?.data?.userArchive?.restore?roleData?.data?.userArchive?.restore.includes(role):false
+                const deleteAccess=roleData?.data?.userArchive?.delete?roleData?.data?.userArchive?.delete.includes(role):false
+
+                console.log(restoreAccess);
+                
                 return (
                     <div className="">
+                        {restoreAccess &&
                        <Tooltip title='Restore'>
                         <p className=" text-xl hover:text-red-500 cursor-pointer" onClick={()=>openDialog1(row.original.UserId)}><LiaTrashRestoreSolid/></p>
                         </Tooltip>
+                        }
+                        <AuthorityCheck 
+                        userAuthority={[`${role}`]}
+                        authority={roleData?.data?.userArchive?.delete??[]}
+                         >
                        <Tooltip title='Delete'>
                         <p className=" text-xl hover:text-red-500 cursor-pointer" onClick={()=>openDialog(row.original.UserId)}><AiOutlineDelete/></p>
                         </Tooltip>
+                        </AuthorityCheck>
                     </div>
                 )
             },
@@ -281,7 +295,7 @@ console.log(data.length);
                                         key={header.id}
                                         colSpan={header.colSpan}
                                     >
-                                        {header.isPlaceholder ?  null : (
+                                        {header.isPlaceholder || header.id==='action' ?  null : (
                                             <div
                                                 {...{
                                                     className:

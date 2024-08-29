@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FolderItem, fetchProjectData } from './data';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Dialog, Notification, Pagination, Select, Skeleton, toast } from '@/components/ui';
@@ -29,7 +29,7 @@ import NoData from '@/views/pages/NoData';
 import TableRowSkeleton from '@/components/shared/loaders/TableRowSkeleton';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { MdOutlineDelete } from 'react-icons/md';
-import { useRoleContext } from '@/views/crm/Roles/RolesContext';
+import { RoleContext, useRoleContext } from '@/views/crm/Roles/RolesContext';
 import formateDate from '@/store/dateformate';
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
@@ -106,7 +106,10 @@ const Index = () => {
   const projectId = queryParams.get('project_id');
   const projectName = queryParams.get('project_name');
   const role=localStorage.getItem('role')
-  const {roleData} = useRoleContext()
+  
+const {roleData} = useContext(RoleContext);
+const uploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
+
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const [dialogIsOpen, setIsOpen] = useState(false);
@@ -229,10 +232,11 @@ const columns = useMemo<ColumnDef<FolderItem>[]>(
             header: 'Actions',
             id: 'actions',
             cell: ({row}) => {
+              const {roleData} = useRoleContext();
                 return(
                   <AuthorityCheck
                     userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.lead?.read??[]}
+                    authority={roleData?.data?.file?.delete??[]}
                     >
                     <div className=' ml-3 cursor-pointer' onClick={()=>openDialog2(row.original.folder_name)}>
                   <MdOutlineDelete className=' text-xl text-center hover:text-red-500'/>
@@ -264,24 +268,27 @@ const onSelectChange = (value = 0) => {
 }
 
 
-const filteredProjectData = useMemo(() => {
- 
-  if (!roleData?.data?.quotation?.read?.includes(`${role}`)) {
-    return projectData.filter(item => 
-      item.folder_name.toLowerCase() !== 'quotation' && 
-      item.folder_name.toLowerCase() !== 'procurement data'
-    );
-  }
-  else if (!roleData?.data?.contract?.read?.includes(`${role}`)) {
-    return projectData.filter(item => 
-      item.folder_name.toLowerCase() !== 'contract'
-    );
-  }
-  return projectData;
-}, [projectData, role]);
+
+// const filteredProjectData = useMemo(() => {
+//   const role=localStorage.getItem('role')
+//   console.log(roleData,role);
+  
+//   if (!roleData?.data?.quotation?.read?.includes(`${role}`)) {
+//     return projectData.filter(item => 
+//       item.folder_name.toLowerCase() !== 'quotation' && 
+//       item.folder_name.toLowerCase() !== 'procurement data'
+//     );
+//   }
+//   else if (!roleData?.data?.contract?.read?.includes(`${role}`)) {
+//     return projectData.filter(item => 
+//       item.folder_name.toLowerCase() !== 'contract'
+//     );
+//   }
+//   return projectData;
+// }, [projectData, role]);
 
 const table = useReactTable({
-    data:filteredProjectData,
+    data:projectData,
     columns,
     filterFns: {
         fuzzy: fuzzyFilter,
@@ -310,14 +317,10 @@ const table = useReactTable({
       <div>
           <div className=" mb-5 flex justify-between">
               <h3 className=" capitalize">Project-{projectName}</h3>
-              <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
-              <Button variant="solid" size="sm" onClick={() => openDialog()}>
+              
+             {uploadAccess && <Button variant="solid" size="sm" onClick={() => openDialog()}>
                   Upload
-              </Button>
-              </AuthorityCheck>
+              </Button>}
           </div> 
             <>
     <div className=' flex justify-between'>

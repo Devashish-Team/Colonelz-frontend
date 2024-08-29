@@ -102,10 +102,25 @@ const LeadForm: React.FC = () => {
             
             >
                 <Field
-                component={Input}
                 name='name'
                 placeholder='Enter lead name'
-                />
+                >
+                    {({ field,form }:any) => (
+                        <Input
+                        name='name'
+                        placeholder='Enter lead name'
+                        onChange={(e) => {
+                            form.setFieldValue(field.name, e.target.value)
+                        }}
+                        onKeyDown={(e) => {
+                            const regex = /^[a-zA-Z\s]*$/;
+                            if (!regex.test(e.key)) {
+                                e.preventDefault();
+                            }
+                        }}
+                        />
+                    )}
+                </Field>
                 <div className='text-red-500'>{errors.name}</div>
             </FormItem>
 
@@ -128,10 +143,11 @@ const LeadForm: React.FC = () => {
             >
                 <Field
                 name='phone'
-                placeholder=''
+                placeholder='Enter Phone'
                 >
                     {({ field,form }:any) => (
                        <Input
+                       placeholder='Enter phone'
                        maxLength={10}
                        onChange={(e) => {
                         const value = e.target.value;
@@ -222,6 +238,7 @@ const LeadForm: React.FC = () => {
                 >
                     {({ field ,form}:any) => (
                         <DateTimepicker
+                        maxDate={new Date()}
                         onChange={(date) => {
                          form.setFieldValue(field.name, `${date}`)
                         }}

@@ -7,26 +7,15 @@ import Switcher from '@/components/ui/Switcher'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import { FormContainer, FormItem } from '@/components/ui/Form'
-
-
 import { Field, Form, Formik } from 'formik'
-import { components } from 'react-select'
 import {
-    HiOutlineUserCircle,
-    HiOutlineMail,
-    HiOutlineBriefcase,
     HiOutlineUser,
-    HiCheck,
-    HiOutlineGlobeAlt,
 } from 'react-icons/hi'
 import * as Yup from 'yup'
-import type { OptionProps, ControlProps } from 'react-select'
 import type { FormikProps, FieldInputProps, FieldProps } from 'formik'
 import FormRow from '@/views/account/Settings/components/FormRow'
-import { use } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import { addProfilePhoto } from '@/services/CommonService'
-import { RiEdit2Line } from 'react-icons/ri'
 import { UserDetailsContext } from '@/views/Context/userdetailsContext'
 
 export type ProfileFormModel = {
@@ -41,79 +30,16 @@ export type ProfileUpdate = {
 }
 
 type ProfileProps = {
-    data?: ProfileFormModel
+    data?: ProfileFormModel | null
 }
-
-type LanguageOption = {
-    value: string
-    label: string
-    imgPath: string
-}
-
-const { Control } = components
-
-
 const validationSchema = Yup.object().shape({
-  
     avatar: Yup.string(),
-  
 })
 
-const langOptions: LanguageOption[] = [
-    { value: 'en', label: 'English (US)', imgPath: '/img/countries/us.png' },
-    { value: 'ch', label: '中文', imgPath: '/img/countries/cn.png' },
-    { value: 'jp', label: '日本语', imgPath: '/img/countries/jp.png' },
-    { value: 'fr', label: 'French', imgPath: '/img/countries/fr.png' },
-]
-
-const CustomSelectOption = ({
-    innerProps,
-    label,
-    data,
-    isSelected,
-}: OptionProps<LanguageOption>) => {
-    return (
-        <div
-            className={`flex items-center justify-between p-2 ${
-                isSelected
-                    ? 'bg-gray-100 dark:bg-gray-500'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-600'
-            }`}
-            {...innerProps}
-        >
-            <div className="flex items-center">
-                <Avatar shape="circle" size={20} src={data.imgPath} />
-                <span className="ml-2 rtl:mr-2">{label}</span>
-            </div>
-            {isSelected && <HiCheck className="text-emerald-500 text-xl" />}
-        </div>
-    )
-}
-
-const CustomControl = ({
-    children,
-    ...props
-}: ControlProps<LanguageOption>) => {
-    const selected = props.getValue()[0]
-    return (
-        <Control {...props}>
-            {selected && (
-                <Avatar
-                    className="ltr:ml-4 rtl:mr-4"
-                    shape="circle"
-                    size={18}
-                    src={selected.imgPath}
-                />
-            )}
-            {children}
-        </Control>
-    )
-}
-    
 const Profile = ({
-  
+  data,
 }: ProfileProps) => {
-    const data = useContext(UserDetailsContext);
+    console.log(data);
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(data?.avatar);
     const onSetFormFile = (
         form: FormikProps<ProfileFormModel>,
@@ -196,7 +122,7 @@ const Profile = ({
                         id="avatarInput" 
                         style={{ display: 'none' }} 
                         aria-label="Upload avatar"
-                        onChange={(event) => {
+                        onChange={(event:any) => {
                         const file = event.target.files[0];
                         const url = URL.createObjectURL(file);
                         form.setFieldValue('avatarUrl', url);

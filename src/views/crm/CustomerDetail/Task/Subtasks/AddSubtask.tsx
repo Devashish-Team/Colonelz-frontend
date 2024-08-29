@@ -7,6 +7,7 @@ import { apiGetCrmProjectsAddSubTask, apiGetCrmProjectsAddTask, apiGetUsersList 
 import { MdOutlineAdd } from 'react-icons/md'
 import * as Yup from 'yup'
 import { useLocation } from 'react-router-dom'
+import { setUser } from '@/store'
 
 type Task = {
     user_id: string;
@@ -22,23 +23,18 @@ type Task = {
     sub_task_assignee: string;
     reporter: string;
   };
+  type Users={
+    users:String[]
+  }
 
-const AddSubTask = (task:any) => {
+const AddSubTask = ({users}:Users) => {
     const [dialogIsOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [userData,setUserData]=useState<any>(null)
     const location=useLocation()
     const queryParams=new URLSearchParams(location.search)
     const project_id=queryParams.get('project_id')
     const task_id=queryParams.get('task')
-    useEffect(() => {
-        const UserData=async()=>{
-            const response = await apiGetUsersList();
-            setUserData(response.data)
-        }
-        UserData();
-
-    },[])
+    
 const openDialog = () => {
     setIsOpen(true)
 }
@@ -59,9 +55,9 @@ const priorityOptions = [
     { label: "Completed", value: "Completed" },
     { label: "Cancelled", value: "Cancelled" },
   ];
-  const userOptions = userData?.map((user:any) => ({
-    label: user.username,
-    value: user.username
+  const userOptions = users?.map((user:any) => ({
+    label: user,
+    value: user
   }));
   
 
@@ -181,6 +177,7 @@ const priorityOptions = [
                                 <Field name='actual_sub_task_start_date'  placeholder='Start date'>
                                     {({field}:any)=>(
                                         <DatePicker name='actual_sub_task_start_date'
+                                        
                                         onChange={(value) => { field.onChange({ target: {name:'actual_sub_task_start_date', value: `${value}` } }) }}
                                         />
                                     )}

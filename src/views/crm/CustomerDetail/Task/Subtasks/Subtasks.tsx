@@ -50,7 +50,15 @@ type SubTask = {
     sub_task_reporter: string;
     sub_task_createdBy: string;
     sub_task_assignee: string;
+    remark:Remarks[]
 };
+type Remarks={
+    remark:string;
+    remark_by:string;
+    remark_date:string;}
+type Data={
+    Data:SubTask
+  }
 
 
 const pageSizeOption = [
@@ -60,7 +68,7 @@ const pageSizeOption = [
     { value: 40, label: '40 / page' },
     { value: 50, label: '50 / page' },
 ]
-const ActionColumn = ({ row }: { row: SubTask}) => {
+const ActionColumn = ({ row,users }: { row: SubTask,users:string[]}) => {
     const navigate = useNavigate()
     const { textTheme } = useThemeClass()
     const location=useLocation()
@@ -105,7 +113,7 @@ const ActionColumn = ({ row }: { row: SubTask}) => {
                 className={`cursor-pointer p-2  hover:${textTheme}`}
                 
             >
-                <EditSubTask Data={row}/>
+                <EditSubTask Data={row} users={users}/>
                 
             </span>
             <span
@@ -191,7 +199,7 @@ const statusColors: { [key: string]: string } = {
     'Not Interested': 'bg-red-200 text-red-700',
 };
 
-const Subtasks = (task:any) => {
+const Subtasks = ({task,users}:any) => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
     const navigate = useNavigate()
@@ -201,11 +209,12 @@ const Subtasks = (task:any) => {
     const queryParams = new URLSearchParams(location.search);
     const projectId=queryParams.get('project_id') || '';
     const [taskData,setTaskData]=useState<any>(null)
+    console.log(projectId,task);
     
   
     useEffect(() => {
         const TaskData=async()=>{
-            const response = await apiGetCrmProjectsSubTaskData(projectId,task.task);
+            const response = await apiGetCrmProjectsSubTaskData(projectId,task);
             setTaskData(response.data)
             console.log('response',response);
         }
@@ -257,7 +266,7 @@ const Subtasks = (task:any) => {
                 header:'Action',
                 id: 'action',
                 accessorKey:'action',
-                cell: ({row}) => <ActionColumn row={row.original}  />,
+                cell: ({row}) => <ActionColumn row={row.original} users={users} />,
             }
            
         ],

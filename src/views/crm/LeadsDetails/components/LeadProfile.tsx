@@ -54,6 +54,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ data }) => {
     const [dialogIsOpen2, setIsOpen2] = useState(false)
     const [project, setProject] = useState<AddProject>()
     const {roleData} = useRoleContext()
+    const createProjectAccess = roleData?.data?.project?.create?.includes(`${localStorage.getItem('role')}`)
 
     const onDialogClose = () => {
         setIsOpen(false)
@@ -196,10 +197,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ data }) => {
                                                 <p className="text-gray-700 dark:text-gray-200 font-semibold text-wrap">
                                                    <div className="remark-content" dangerouslySetInnerHTML={{ __html: data?.notes?data?.notes[0]?.content:"" }} /></p>
                                             </div>
-                                            <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.project?.create??[]}
-                    >
+                                       { createProjectAccess &&<>
                            {data?.project?
                         <Button onClick={()=>openDialog2()} block variant='solid'>
                             Add Another Project
@@ -215,7 +213,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ data }) => {
                         >
                             Create Project
                         </Button>}
-                        </AuthorityCheck>
+                        </> }
                         </div>
                     <div className="mt-4 flex flex-col xl:flex-row gap-2"></div>
                 </div>

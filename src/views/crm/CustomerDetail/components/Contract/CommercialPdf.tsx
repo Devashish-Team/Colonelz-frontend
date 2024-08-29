@@ -493,7 +493,7 @@ const date=new Date();
       <Text>Site Address          - {pdfData.site_address}</Text>
     </View>
     <View style={styles.client1}>
-      <Text>Client Contact      - {pdfData.client_name[0]};</Text>
+      <Text>Client Contact      - {pdfData?.client_name[0]};</Text>
       </View>
     <View style={styles.client2}>
       <Text style={styles.number}> +91 {pdfData.client_phone[0]}, {pdfData.client_email[0]}</Text>

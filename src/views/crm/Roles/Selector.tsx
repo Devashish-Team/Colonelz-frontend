@@ -12,7 +12,7 @@ type SelectorProps = {
 
 const permissionsMap: { [key: string]: Permission[] } = {
     default: ['create', 'read', 'update', 'delete'],
-    task: ['create'],
+    task: ['create', 'read', 'update', 'delete'],
     file:['create','read','delete'],
     archive: ['read', 'restore','delete'],
     addMember: ['create'],
@@ -22,6 +22,7 @@ const permissionsMap: { [key: string]: Permission[] } = {
     contract: ['create', 'read','update'],
     quotation: [ 'read','update'],
     user: [ 'read'],
+    userArchive:['read','restore','delete'],
     companyData:['read']
 
 };

@@ -125,9 +125,10 @@ const Upload = forwardRef<HTMLDivElement, UploadProps>((props, ref) => {
     }
 
     const removeFile = (fileIndex: number) => {
-        const deletedFileList = files.filter((_, index) => index !== fileIndex)
-        setFiles(deletedFileList)
-        onFileRemove?.(deletedFileList)
+        const updatedFileList = files.filter((_, index) => index !== fileIndex)
+        setFiles(updatedFileList)
+        onFileRemove?.(updatedFileList)
+        onChange?.(updatedFileList, updatedFileList) // Ensure onChange is called with the updated file list
     }
 
     const triggerUpload = (e: MouseEvent<HTMLDivElement>) => {

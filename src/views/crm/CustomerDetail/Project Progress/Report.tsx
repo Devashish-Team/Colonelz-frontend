@@ -15,7 +15,7 @@ interface ChartData {
   categories: string[];
 }
 
-const Report: React.FC = () => {
+const Report = ({report}:any) => {
   const location = useLocation();
   const [chartWidth, setChartWidth] = useState<number>(window.innerWidth > 768 ? 500 : window.innerWidth - 40);
   const query = new URLSearchParams(location.search);
@@ -35,10 +35,9 @@ const Report: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await apiGetCrmSingleProjectReport(projectId);
-      if (response.status) {
-        const taskNames = response.data.map((task: TaskData) => task.task_name);
-        const percentages = response.data.map((task: TaskData) => task.percentage);
+      if (report) {
+        const taskNames = report.data.map((task: TaskData) => task.task_name);
+        const percentages = report.data.map((task: TaskData) => task.percentage);
         setChartData({
           series: [{ data: percentages }],
           categories: taskNames,

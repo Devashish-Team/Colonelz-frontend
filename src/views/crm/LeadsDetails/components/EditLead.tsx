@@ -123,6 +123,7 @@ const EditLead = ({ details }: any) => {
               <Field name='date'>
                 {({ field, form }: any) => (
                   <DateTimepicker
+                  maxDate={new Date()}
                     value={field.value}
                     onChange={(date) => form.setFieldValue('date', date)}
                   />

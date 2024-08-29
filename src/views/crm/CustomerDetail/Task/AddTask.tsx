@@ -26,6 +26,7 @@ const AddTask = ({project,userData}:any) => {
     const [loading, setLoading] = useState(false)
     console.log(userData);
     
+    
 const openDialog = () => {
     setIsOpen(true)
 }
@@ -45,17 +46,9 @@ const priorityOptions = [
     { label: "In Progress", value: "In Progress" },
     { label: "Cancelled", value: "Cancelled" },
   ];
-  const userOptions = userData?.map((user:any) => ({
-    label: user.username,
-    value: user.username
-  }));
+  const userOptions = userData?.map((user:any) => ({label: user, value: user}))
 
-  console.log(userOptions);
-  
- 
-  
-
-    return (
+  return (
         <div>
             <Button onClick={openDialog}  variant='solid' size='sm'>Add New Task</Button>
             <Dialog isOpen={dialogIsOpen} onClose={onDialogClose} onRequestClose={onDialogClose}>
@@ -217,7 +210,7 @@ const priorityOptions = [
                                 <div className=' text-red-600'>{errors.estimated_task_end_date}</div>
                             </FormItem>
                            
-                            <FormItem label='Reporting'
+                            <FormItem label='Report to'
                             asterisk
                             invalid={errors.reporter && touched.reporter}
                             >

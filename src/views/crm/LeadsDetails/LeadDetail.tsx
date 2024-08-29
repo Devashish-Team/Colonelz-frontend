@@ -78,6 +78,7 @@ const CustomerDetail = () => {
     
     const lead = details?.data?.[0];
     const {roleData}=useRoleContext()
+    const contractAccess = roleData?.data?.contract?.read?.includes(`${localStorage.getItem('role')}`)
     
     const Toggle =
    
@@ -126,22 +127,15 @@ const CustomerDetail = () => {
                     <TabNav value="Actions" >
                         Follow-Ups
                     </TabNav>
-                    <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.contract?.read??[]}
-                    >
+                   {contractAccess &&
                     <TabNav value="Contract" >
                         Contract
-                    </TabNav>
-                    </AuthorityCheck>
-                    <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={[`ADMIN`]}
-                    >
+                    </TabNav>}
+                    {['ADMIN'].includes(localStorage.getItem('role') || '') &&
                     <TabNav value="Activity" >
                         Lead Activity
                     </TabNav>
-                    </AuthorityCheck>
+}
                 </TabList>
                 <div className="p-4">
                     <TabContent value="Actions">

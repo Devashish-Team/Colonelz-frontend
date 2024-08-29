@@ -27,9 +27,8 @@ const HeaderActionsEnd = () => {
 
             <Notification />
             <SidePanel />
-            <UserDetailsProvider>
             <UserDropdown hoverable={false} />
-            </UserDetailsProvider>
+           
         </>
     )
 }
@@ -38,6 +37,7 @@ const SimpleLayout = () => {
     return (
         <div className="app-layout-simple flex flex-auto flex-col min-h-screen">
             <div className="flex flex-auto min-w-0">
+            <UserDetailsProvider>
                     <RoleProvider>
                 <div className="flex flex-col flex-auto min-h-screen min-w-0 relative w-full">
                     <Header
@@ -50,6 +50,7 @@ const SimpleLayout = () => {
                     <View pageContainerType="contained" />
                 </div>
                     </RoleProvider>
+                    </UserDetailsProvider>
             </div>
         </div>
     )

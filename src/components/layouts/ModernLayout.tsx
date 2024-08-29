@@ -26,9 +26,8 @@ const HeaderActionsEnd = () => {
         <>
             <Notification />
             <SidePanel />
-            <UserDetailsProvider>
             <UserDropdown hoverable={false} />
-            </UserDetailsProvider>
+          
         </>
     )
 }
@@ -38,6 +37,7 @@ const ModernLayout = () => {
         <div className="app-layout-modern flex flex-auto flex-col">
             <div className="flex flex-auto min-w-0">
                 <SideNav />
+                <UserDetailsProvider>
                     <RoleProvider>
                 <div className="flex flex-col flex-auto min-h-screen min-w-0 relative w-full bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
                     <Header
@@ -48,6 +48,7 @@ const ModernLayout = () => {
                     <View />
                 </div>
                     </RoleProvider>
+                    </UserDetailsProvider>
             </div>
         </div>
     )

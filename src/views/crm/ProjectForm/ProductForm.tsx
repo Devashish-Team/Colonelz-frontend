@@ -133,9 +133,9 @@ const YourFormComponent: React.FC<CustomerProfileProps> = ({ data }) => {
      onSubmit={async(values) => {
        setLoading(true);
        const formData=new FormData();
-       Object.keys(values).forEach((key:string) => {
+       Object.keys(values).forEach((key: string) => {
         if (key !== 'contract') {
-          formData.append(key, values[key]);
+          formData.append(key, values[key as keyof typeof values] as string);
         }
       });
       values.contract.forEach((file, index) => {
@@ -184,10 +184,25 @@ const YourFormComponent: React.FC<CustomerProfileProps> = ({ data }) => {
         errorMessage={errors.client_name}
         >
           <Field
-            component={Input}
+            
             name='client_name'
             type='text'
-            placeholder='Client Name'/>
+            placeholder='Client Name'>
+            {({ field,form }:any) => {
+              return (
+                <Input
+                type='text'
+                placeholder='Client Name'
+                onChange={(e) => form.setFieldValue(field.name, e.target.value)}
+                onKeyDown={(e) => {
+                  const regex = /^[a-zA-Z\s]*$/;
+                  if (!regex.test(e.key)) {
+                      e.preventDefault();
+                  }}}
+                />
+              );
+            }}
+            </Field>
         </FormItem>
         <FormItem label='Client Email'
         asterisk
@@ -206,10 +221,26 @@ const YourFormComponent: React.FC<CustomerProfileProps> = ({ data }) => {
         errorMessage={errors.client_contact}
         >
           <Field
-            component={Input}
+            
             name='client_contact'
             type='text'
-            placeholder='Client Contact'/>
+            placeholder='Client Contact'>
+            {({ field,form }:any) => {
+              return (
+                <Input
+                type='text'
+                placeholder='Client Contact'
+                maxLength={10}
+                onChange={(e) => form.setFieldValue(field.name, e.target.value)}
+              onKeyDown={(e) => {
+                  const charCode = e.which ? e.which : e.keyCode;
+                  if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    e.preventDefault();
+                  }
+                }}
+                />
+              );}}
+            </Field>
         </FormItem>
         <FormItem label='Project Name'
         asterisk
@@ -239,10 +270,25 @@ const YourFormComponent: React.FC<CustomerProfileProps> = ({ data }) => {
         errorMessage={errors.designer}
         >
           <Field
-            component={Input}
             name='designer'
             type='text'
-            placeholder='Designer'/>
+            placeholder='Designer'>
+            {({ field,form }:any) => {
+              return (
+              <Input
+              type='text'
+              placeholder='Designer'
+              onChange={(e) => form.setFieldValue(field.name, e.target.value)}
+              onKeyDown={(e) => {
+                const regex = /^[a-zA-Z\s]*$/;
+                if (!regex.test(e.key)) {
+                    e.preventDefault();
+                }
+            }}
+              />
+              );
+            }}
+            </Field>
         </FormItem>
         <FormItem label='Project Budget'
         asterisk

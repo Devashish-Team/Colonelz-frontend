@@ -108,6 +108,7 @@ const Index = () => {
   const folderId = queryParams.get('folder_id');
   const [shareLoading, setShareLoading] = useState(false);
   const { roleData } = useRoleContext();
+  const uploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
   
   const navigate=useNavigate()
 
@@ -406,15 +407,14 @@ const onSelectChange = (value = 0) => {
             accessorKey:'action',
             id:'actions',
             cell:({row})=>{
+              const {roleData}=useRoleContext()
+              const deleteAccess = roleData?.data?.file?.delete?.includes(`${localStorage.getItem('role')}`)
                 return ( 
                   <div className=' flex justify-center gap-3'> 
-                     <AuthorityCheck
-                       userAuthority={[`${localStorage.getItem('role')}`]}
-                       authority={roleData?.data?.file?.delete??[]}
-                       >
-  
+                    
+                    {deleteAccess &&
                   <AiOutlineDelete className='text-xl cursor-pointer hover:text-red-500' onClick={()=>openDialog3(row.original.fileId)} />
-                    </AuthorityCheck>
+                    }
                     <HiShare className='text-xl cursor-pointer'  onClick={() => openDialog(row.original.fileId)}/>  
                     </div>
                     )
@@ -455,14 +455,11 @@ const onSelectChange = (value = 0) => {
     <div>
         <div className='flex justify-between'>
       <h3 className='mb-5'>Company Data</h3>
-      <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
+      {uploadAccess &&
       <Button className='' size='sm' variant='solid' onClick={()=>openDialog2()}>
         Upload Files
-      </Button>
-      </AuthorityCheck>
+      </Button>}
+      
       </div>
       {leadData && leadData.length > 0 ? (
         

@@ -152,8 +152,8 @@ export async function apiGetUsers() {
     return data;
 }
 
-export async function apiDeleteUsers(userId: string) {
-    const response=await fetch(`${apiPrefix}admin/delete/user?userId=${userId}`, {
+export async function apiDeleteUsers(userid: string) {
+    const response=await fetch(`${apiPrefix}admin/delete/user?userId=${userid}&id=${userId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',

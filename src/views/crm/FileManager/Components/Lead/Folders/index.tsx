@@ -5,7 +5,7 @@ import { Button, Dialog, FormItem, Input, Notification, Pagination, Select, Uplo
 import { AuthorityCheck, ConfirmDialog, RichTextEditor, StickyFooter } from '@/components/shared';
 import CreatableSelect from 'react-select/creatable';
 import { CiFileOn, CiImageOn } from 'react-icons/ci';
-import { apiDeleteFileManagerFiles, apiGetCrmFileManagerCreateLeadFolder, apiGetCrmFileManagerLeads, apiGetCrmFileManagerShareContractFile, apiGetCrmFileManagerShareFiles } from '@/services/CrmService';
+import { apiDeleteFileManagerFiles, apiGetAllUsersList, apiGetCrmFileManagerCreateLeadFolder, apiGetCrmFileManagerLeads, apiGetCrmFileManagerShareContractFile, apiGetCrmFileManagerShareFiles } from '@/services/CrmService';
 import { Formik, Field, Form } from 'formik';
 import * as Yup from 'yup';
 import { apiGetUsers } from '@/services/CommonService';
@@ -115,11 +115,12 @@ const Index = () => {
   const folderName = queryParams.get('folder_name');
 
   const {roleData} = useRoleContext();
+  const fileUploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
    const [users, setUsers] = useState<User[]>([]);
   useEffect(() => {
     const fetchDataAndLog = async () => {
       try {
-        const usersData = await apiGetUsers();
+        const usersData = await apiGetAllUsersList();
         setUsers(usersData?.data);
       } catch (error) {
         console.error('Error fetching users', error);
@@ -310,7 +311,7 @@ console.log(leadData);
   };
   
   const getFileIcon = (fileName: string) => {
-    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const extension = fileName?.split('.').pop()?.toLowerCase() || '';
     const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'ico'];
     if (imageExtensions.includes(extension as string)) {
       return <CiImageOn className='text-xl' />;
@@ -327,7 +328,7 @@ console.log(leadData);
     }
   };
   const getFileType = (fileName: string) => {
-    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const extension = fileName?.split('.').pop()?.toLowerCase() || '';
     const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'ico'];
     const documentExtensions = ['docx', 'doc', 'txt', 'pdf'];
     const presentationExtensions = ['pptx', 'ppt'];
@@ -455,17 +456,13 @@ const onSelectChange = (value = 0) => {
   table.setPageSize(Number(value))
 }
   return (
-    <div>
+    <div>   
        <div className='flex justify-between'>
       <h3 className='mb-5'>Lead-{leadName}</h3>
-      <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
+      {fileUploadAccess &&
       <Button className='' size='sm' variant='solid' onClick={()=>openDialog2()}>
         Upload Files
-      </Button>
-      </AuthorityCheck>
+      </Button>}
       </div>
 
       <div className="w-full">
@@ -648,7 +645,7 @@ const onSelectChange = (value = 0) => {
     user_name: Yup.string().required('Required'),
     type: Yup.string().required('Required'),
   })}
-  onSubmit={async(values, { setSubmitting }) => {
+  onSubmit={async(values:any, { setSubmitting }) => {
     setSubmitting(true)
     const formData=new FormData()
     formData.append('lead_id',values.lead_id)

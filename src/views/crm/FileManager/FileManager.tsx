@@ -1,4 +1,4 @@
-import {  Tabs } from '@/components/ui'
+import { Skeleton, Tabs } from '@/components/ui'
 import TabContent from '@/components/ui/Tabs/TabContent'
 import TabList from '@/components/ui/Tabs/TabList'
 import { MdManageAccounts } from "react-icons/md";
@@ -11,63 +11,67 @@ import Template from './Components/Template';
 import { DataProvider } from './FileManagerContext/FIleContext';
 import { AuthorityCheck } from '@/components/shared';
 import { useRoleContext } from '../Roles/RolesContext';
+import { useState, useEffect } from 'react';
 
 const FileManager = () => {
-  const role=localStorage.getItem('role') || '';
-  const {roleData}=useRoleContext()
+  const role = localStorage.getItem('role') || '';
+  const { roleData } = useRoleContext();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (roleData) {
+      setIsLoading(false);
+    }
+  }, [roleData]);
+
+  if (isLoading) {
+    return <div><Skeleton height={400}/></div>;
+  }
+
   const hasProjectReadPermission = roleData?.data?.project?.read?.includes(role);
   const hasLeadReadPermission = roleData?.data?.lead?.read?.includes(role);
+
   return (
     <div>
-    <Tabs 
-    defaultValue={!hasLeadReadPermission?'project'?!hasProjectReadPermission?'company':'project':'leads':'leads'}
-    >
+      <Tabs 
+        defaultValue={hasLeadReadPermission ? 'leads' : hasProjectReadPermission ? 'project' : 'company'}
+      >
         <TabList>
-          <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.lead?.read??[]}
-                    >
-           <TabNav value="leads" icon={<MdManageAccounts />}>
-           
-                Leads
+          {hasLeadReadPermission &&
+            <TabNav value="leads" icon={<MdManageAccounts />}>
+              Leads
             </TabNav>
-            </AuthorityCheck>
-            <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.project?.read??[]}
-                    >
-  <TabNav value="project" icon={<LuFileStack />}>
-    Projects
-  </TabNav>
-  </AuthorityCheck>
-
-  <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.companyData?.read??[]}
-                    >
-  <TabNav value="company" icon={<GoRepoTemplate />}>
-    Company Data
-  </TabNav>
-  </AuthorityCheck>
-
+          }
+          {hasProjectReadPermission &&
+            <TabNav value="project" icon={<LuFileStack />}>
+              Projects
+            </TabNav>
+          }
+          <AuthorityCheck
+            userAuthority={[`${localStorage.getItem('role')}`]}
+            authority={roleData?.data?.companyData?.read ?? []}
+          >
+            <TabNav value="company" icon={<GoRepoTemplate />}>
+              Company Data
+            </TabNav>
+          </AuthorityCheck>
         </TabList>
         <div className="p-4">
-          
           <DataProvider>
             <TabContent value="leads">
-               <Leads/>
+              <Leads />
             </TabContent>
             <TabContent value="project">
-               <Projects />
+              <Projects />
             </TabContent>
             <TabContent value="company">
-                <Template/>
+              <Template />
             </TabContent>
-            </DataProvider>
+          </DataProvider>
         </div>
-    </Tabs>
-</div>
-  )
+      </Tabs>
+    </div>
+  );
 }
 
-export default FileManager
+export default FileManager;

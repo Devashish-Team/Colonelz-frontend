@@ -200,21 +200,26 @@ const Roles = () => {
                 const { row } = props
                 const role= row.original.role
                 const id= row.original._id
+                const {roleData}=useRoleContext()
+                const editAccess = roleData?.data?.role?.update?.includes(`${localStorage.getItem('role')}`)
+                const deleteAccess = roleData?.data?.role?.delete?.includes(`${localStorage.getItem('role')}`)
                 return(
                 <span className='flex items-center text-lg gap-2'>
+                    {editAccess&&
                     <Tooltip title='Edit'>
                 <span className='hover:text-blue-500 text-lg'>
                     <Link to={`/app/crm/roles/edit?role=${role}&id=${id}`}>
                 <BiPencil/>
                 </Link>
                 </span>
-                </Tooltip>
+                </Tooltip>}
+                {deleteAccess&&
                 <Tooltip title='Delete'>
-                <span onClick={()=>handleOpen(id)} className=' cursor-pointer hover:text-red-500 text-lg'><MdDeleteOutline/></span></Tooltip>
+                <span onClick={()=>handleOpen(id)} className=' cursor-pointer hover:text-red-500 text-lg'><MdDeleteOutline/></span></Tooltip>}
                 </span>)
             },
         },
-    ])
+    ],[])
 
     const onPaginationChange = (page: number) => {
         table.setPageIndex(page - 1)

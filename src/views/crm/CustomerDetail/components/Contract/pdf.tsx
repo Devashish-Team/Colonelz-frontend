@@ -462,10 +462,6 @@ function numberToWordsString(number:number) {
  
 const MyDocument = (data:any) => {
   const pdfData=data.data;
-console.log(pdfData.number);
-console.log(pdfData);
-console.log(pdfData.number[0]);
-console.log(pdfData.toilet_number);
 
 const date=new Date();
 

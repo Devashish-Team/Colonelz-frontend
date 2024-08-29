@@ -110,6 +110,7 @@ const Index = () => {
     const leadName = queryParams.get('lead_name');
     const role=localStorage.getItem('role')
     const {roleData} = useRoleContext();
+    const uploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchLeadData(leadId);
@@ -152,22 +153,24 @@ const Index = () => {
         type:"",
         project_id:""
       };
-      try {
-        await apiDeleteFileManagerFolders(postData);
+      
+       const response= await apiDeleteFileManagerFolders(postData);
+       const data = await response.json();
+         if (response.status === 200){
         toast.push(
           <Notification closable type="success" duration={2000}>
             Folder deleted successfully
           </Notification>,{placement:'top-center'}
         )
         window.location.reload()
-      } catch (error) {
+    }
+    else{
         toast.push(
           <Notification closable type="danger" duration={2000}>
-            Error deleting folder
+            {data.errorMessage}
           </Notification>,{placement:'top-center'}
         )
-      }
-      
+    }
     }
     
     const navigate=useNavigate()
@@ -227,6 +230,7 @@ const columns = useMemo<ColumnDef<FolderItem>[]>(
             header: 'Actions',
             id: 'actions',
             cell: ({row}) => {
+                const {roleData} = useRoleContext();
                 return(
                     <AuthorityCheck
                     userAuthority={[`${localStorage.getItem('role')}`]}
@@ -278,6 +282,8 @@ const filteredProjectData = useMemo(() => {
   }
   return leadData;
 }, [leadData, role]);
+console.log(filteredProjectData);
+
 
 const table = useReactTable({
     data:filteredProjectData,
@@ -307,16 +313,13 @@ const table = useReactTable({
      
   return (
       <div>
-          <div className=" flex justify-between mb-5">
+          <div className="flex justify-between mb-5">
               <h3 className="">Lead-{leadName}</h3>
-              <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
+              {uploadAccess &&
               <Button variant="solid" size="sm" onClick={() => openDialog()}>
                   Upload
               </Button>
-              </AuthorityCheck>
+              }
           </div>
     
     <>

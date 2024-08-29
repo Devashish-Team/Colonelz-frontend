@@ -12,7 +12,21 @@ console.log('token',token);
 
 
 
-export async function apiGetUsersList() {
+export async function apiGetUsersList(projectId:string) {
+    const response = await fetch(`${apiPrefix}admin/get/user/project?project_id=${projectId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        }
+    });
+
+    
+    const data = await response.json();
+    console.log('Received response from server:', data);
+    return data;
+}
+export async function apiGetAllUsersList() {
     const response = await fetch(`${apiPrefix}admin/get/userlist?user_id=${userId}`, {
         method: 'GET',
         headers: {

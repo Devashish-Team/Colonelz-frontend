@@ -20,10 +20,10 @@ import CreatableSelect from 'react-select/creatable'
 import { CiFileOn, CiImageOn } from 'react-icons/ci'
 import {
     apiDeleteFileManagerFiles,
+    apiGetAllUsersList,
     apiGetCrmFileManagerCreateProjectFolder,
     apiGetCrmFileManagerShareFiles,
     apiGetCrmProjectShareQuotation,
-    apiGetUsersList,
 } from '@/services/CrmService'
 import { apiGetUsers } from '@/services/CommonService'
 import { HiShare, HiTrash } from 'react-icons/hi'
@@ -139,6 +139,7 @@ const Index = () => {
         null,
     )
     const {roleData} = useRoleContext()
+    const uploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
 
     interface User {
         role: string
@@ -152,7 +153,7 @@ type Option = {
 
     useEffect(() => {
         const response = async () => {
-            const data = await apiGetUsersList()
+            const data = await apiGetAllUsersList()
             const userdata = data.data
             console.log(userdata)
 
@@ -181,6 +182,7 @@ type Option = {
     const [dialogIsOpen2, setIsOpen2] = useState(false)
     const [dialogIsOpen3, setIsOpen3] = useState(false)
     const [fileId, setFileId] = useState<string>('')
+
 
     const openDialog = (fileId: string) => {
         setIsOpen(true)
@@ -307,7 +309,7 @@ type Option = {
             user_name: selectedUsername,
             type: 'Internal',
             file_id: selectedFileId,
-            folder_name: 'quotation',
+            folder_name: folderName,
             project_id: leadId,
             user_id: localStorage.getItem('userId'),
         }
@@ -507,8 +509,11 @@ const columns = useMemo<ColumnDef<FileItem>[]>(
         } },
         { header: 'Actions', accessorKey: 'actions',
         cell:({row})=>{
+            const {roleData}=useRoleContext()
+            const deleteAccess = roleData?.data?.file?.delete?.includes(`${localStorage.getItem('role')}`)
           return <div className='flex items-center gap-2'>
-              <MdDeleteOutline className='text-xl cursor-pointer hover:text-red-500' onClick={()=>openDialog3(row.original.fileId)} />
+            {deleteAccess &&
+              <MdDeleteOutline className='text-xl cursor-pointer hover:text-red-500' onClick={()=>openDialog3(row.original.fileId)} />}
                   <HiShare className='text-xl cursor-pointer'  onClick={() => openDialog(row.original.fileId)}/> 
           </div>
         }
@@ -554,11 +559,7 @@ const onSelectChange = (value = 0) => {
         <div>
             <div className="flex justify-between">
                 <h3 className="mb-5 capitalize">Project-{ProjectName}</h3>
-                <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
-
+                {uploadAccess &&
                 <Button
                     className=""
                     size="sm"
@@ -566,8 +567,7 @@ const onSelectChange = (value = 0) => {
                     onClick={() => openDialog2()}
                 >
                     Upload Files
-                </Button>
-                </AuthorityCheck>
+                </Button>}
             </div>
         
              
@@ -1035,13 +1035,13 @@ const onSelectChange = (value = 0) => {
                                 {({ field, form }: any) => (
                                     <Upload
                                     draggable
+                                    multiple
                                         onChange={(
                                             files: File[],
                                             fileList: File[],
                                         ) => {
                                             form.setFieldValue('files', files)
                                         }}
-                                        multiple
                                     />
                                 )}
                             </Field>

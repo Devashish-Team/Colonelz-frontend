@@ -2,7 +2,7 @@ import { Button, Card, Skeleton } from '@/components/ui'
 import React, { useEffect, useState } from 'react'
 import Subtasks from '../Subtasks/Subtasks'
 import { useLocation } from 'react-router-dom'
-import { apiGetCrmProjectsSingleTaskData } from '@/services/CrmService'
+import { apiGetCrmProjectsSingleTaskData, apiGetUsersList } from '@/services/CrmService'
 import AddSubTask from '../Subtasks/AddSubtask'
 import EditTask from '../EditTask'
 import NoData from '@/views/pages/NoData'
@@ -16,8 +16,9 @@ const TaskDetails = () => {
     const location=useLocation();
     const queryParams=new URLSearchParams(location.search);
     const task_id=queryParams.get('task') 
-    const project_id=queryParams.get('project_id')
+    const project_id=queryParams.get('project_id') || ''
     console.log(task_id,project_id);
+    const [users,setUsers]=useState<any>() 
     
 
     const [taskData, setTaskData] = React.useState<any>([])
@@ -25,12 +26,16 @@ const TaskDetails = () => {
     useEffect(() => {
         const fetchData = async () => {
             const response = await apiGetCrmProjectsSingleTaskData(project_id,task_id);
+            const list=await apiGetUsersList(project_id)
             setLoading(false)
             setTaskData(response.data[0]);
+            setUsers(list.data)
         }
         fetchData();
     }
     , [project_id,task_id])
+    console.log(task_id);
+    
 
     console.log(taskData);
     const header = (
@@ -38,9 +43,10 @@ const TaskDetails = () => {
             <h5 className="pl-5">Task-{taskData.task_name}</h5>
         </div>
     )
+    console.log(users);
     
     const cardFooter = (
-        <EditTask Data={taskData} task={true}/>
+        <EditTask Data={taskData} users={users} task={true}/>
     )
 
 
@@ -103,10 +109,10 @@ const TaskDetails = () => {
   
         <div className='flex justify-between mb-4 items-center'>
         <h5>Subtasks</h5>
-        <AddSubTask  task={{taskid:taskData.task_id,project_id:taskData.project_id}}/>
+        <AddSubTask   users={users}/>
         </div>
     
-    <Subtasks task={task_id}/>
+    <Subtasks task={task_id} users={users}/>
     </div>
 </div>
     

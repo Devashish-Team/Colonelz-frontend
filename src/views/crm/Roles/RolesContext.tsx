@@ -21,6 +21,7 @@ type RoleAccessPermissions = {
     | "quotation"
     | "addMember"
     | "role"
+    |"userArchive"
     | "companyData";
   
   type RoleAccessData = {
@@ -45,7 +46,7 @@ type RoleList={
 
 
 // Create the context
-const RoleContext = createContext<RoleContextType >(undefined!);
+export const RoleContext = createContext<RoleContextType >(undefined!);
 
 // Provide the context
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

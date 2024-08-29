@@ -113,12 +113,12 @@ const Filtering = () => {
            
             {
                 header: 'Lead name',
-                accessorKey: 'lead_Name',
+                accessorKey: 'lead_name',
                 cell: (props) => {
                     const row = props.row.original;
                     return (
                         <div className=' cursor-pointer'>
-                            {row.lead_Name}
+                            {row.lead_name}
                         </div>
                     )
                   }},
@@ -273,7 +273,7 @@ const Filtering = () => {
                 <TBody>
                     {table.getRowModel().rows.map((row) => {
                         return (
-                            <Tr key={row.id} className=' capitalize cursor-pointer' onClick={()=>navigate(`/app/crm/fileManager/leads?lead_id=${row.original.lead_id}&lead_name=${row.original.lead_Name}`)}>
+                            <Tr key={row.id} className=' capitalize cursor-pointer' onClick={()=>navigate(`/app/crm/fileManager/leads?lead_id=${row.original.lead_id}&lead_name=${row.original.lead_name}`)}>
                                 {row.getVisibleCells().map((cell) => {
                                     return (
                                         <Td key={cell.id}>

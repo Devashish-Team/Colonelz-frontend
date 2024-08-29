@@ -57,7 +57,7 @@ const FileItem = (props: FileItemProps) => {
             <div className="flex">
                 <div className="upload-file-thumbnail">{renderThumbnail()}</div>
                 <div className="upload-file-info">
-                    <h6 className="upload-file-name">{name}</h6>
+                    <h6 className="upload-file-name text-wrap break-all">{name}</h6>
                     <span className="upload-file-size">{getKB(size)} kb</span>
                 </div>
             </div>

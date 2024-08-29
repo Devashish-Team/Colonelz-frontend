@@ -9,7 +9,7 @@ import { StickyFooter } from '@/components/shared';
 import { useNavigate } from 'react-router-dom';
 
 type Permission = 'create' | 'read' | 'update' | 'delete';
-type AccessType = 'lead' | 'user' | 'project' | 'task' | 'contract' | 'quotation' | 'file' | 'archive' | 'mom' | 'addMember' | 'role' | 'companyData';
+type AccessType = 'lead' | 'user' | 'project' | 'task' | 'contract' | 'quotation' | 'file' | 'archive' | 'mom' | 'addMember' | 'role' | 'companyData'| 'userArchive';
 
 type AccessPermissions = Permission[];
 
@@ -18,7 +18,7 @@ type FormValues = {
 };
 
 const accessTypes: AccessType[] = [
-    'lead', 'user', 'project', 'task', 'contract', 'quotation', 'file', 'archive', 'mom', 'addMember', 'role','companyData'
+    'lead', 'user', 'project', 'task', 'contract', 'quotation', 'file', 'archive', 'mom', 'addMember', 'role','companyData','userArchive'
 ];
 
 
@@ -95,7 +95,7 @@ const EditRoles = () => {
 
     return (
         <div className='p-6'>
-            <h3>Edit Role</h3>
+            <h3>Edit Role({role})</h3>
             <Formik
                 initialValues={initialValues}
                 onSubmit={handleSubmit}

@@ -28,20 +28,15 @@ type Task = {
 
   interface EditTaskProps extends Data {
     task: boolean;
+    users:String[]
   }
 
-const EditTask = ({ Data, task }: EditTaskProps) => {
+const EditTask = ({ Data,users,task }: EditTaskProps) => {
     const [dialogIsOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [userData,setUserData]=useState<any>(null)
-    useEffect(() => {
-        const UserData=async()=>{
-            const response = await apiGetUsersList();
-            setUserData(response.data)
-        }
-        UserData();
 
-    },[task])
+    
     
 const openDialog = () => {
     setIsOpen(true)
@@ -63,9 +58,9 @@ const priorityOptions = [
     { label: "Cancelled", value: "Cancelled" },
   ];
   
-  const userOptions = userData?.map((user:any) => ({
-    label: user.username,
-    value: user.username
+  const userOptions = users?.map((user:any) => ({
+    label: user,
+    value: user
   }));
 
   const formateDate = (dateString:string) => {
@@ -237,7 +232,7 @@ const priorityOptions = [
                                     )}
                                 </Field>
                             </FormItem>
-                            <FormItem label='Reporting'
+                            <FormItem label='Report to'
                             asterisk
                             invalid={errors.reporter && touched.reporter}   
                             errorMessage={errors.reporter}

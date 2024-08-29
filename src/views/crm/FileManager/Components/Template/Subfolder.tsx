@@ -109,6 +109,7 @@ const Index = () => {
     const folderName = queryParams.get('folder')
     const type = queryParams.get('type')
     const {roleData} = useRoleContext()
+    const uploadAccess = roleData?.data?.file?.create?.includes(`${localStorage.getItem('role')}`)
     useEffect(() => {
         const fetchDataAndLog = async () => {
             try {
@@ -222,7 +223,7 @@ const Index = () => {
         () => [
             {
                 header: 'Name',
-                accessorKey: 'folder_name',
+                accessorKey: 'sub_folder_name_second',
                 cell: ({ row }) => (
                     <div className="flex items-center">
                         <AiOutlineFolder className="mr-2 text-xl" />
@@ -254,11 +255,10 @@ const Index = () => {
                 accessorKey: 'action',
                 id: 'actions',
                 cell: ({ row }) => {
+                    const {roleData} = useRoleContext()
+                    const deleteAccess = roleData?.data?.file?.delete?.includes(`${localStorage.getItem('role')}`)
                     return (
-                        <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.delete??[]}
-                    >
+                        deleteAccess &&
                         <div
                             className=" flex justify-center"
                             onClick={() =>
@@ -267,8 +267,7 @@ const Index = () => {
                         >
                             <AiOutlineDelete className=" text-xl text-center hover:text-red-500" />
                         </div>
-                        </AuthorityCheck>
-                    )
+                )
                 },
             },
         ],
@@ -303,14 +302,10 @@ const Index = () => {
         <div>
             <div className=" mb-5 flex justify-between">
                 <h3 className="">Folder</h3>
-                <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.file?.create??[]}
-                    >
+               {uploadAccess &&
                 <Button variant="solid" size="sm" onClick={() => openDialog()}>
                     Upload
-                </Button>
-                </AuthorityCheck>
+                </Button>}
             </div>
             {!loading ? templateData.length === 0 ?(<NoData />): (
                 <div className="h-screen w-full">

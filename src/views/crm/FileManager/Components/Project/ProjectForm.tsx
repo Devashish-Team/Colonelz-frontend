@@ -146,6 +146,14 @@ const clientOptions: Option[] = uniqueFolderNames
                             draggable
                                 onChange={(files) => handleFileChange(files)}
                                 multiple
+                                onFileRemove={(file) => {
+                                    setFormData((prevFormData) => ({
+                                        ...prevFormData,
+                                        files: prevFormData.files.filter((f) => f !== file[0]),
+                                    }))
+                                  }
+                                }
+                                uploadLimit={1}
                             >
                                 
                             </Upload>

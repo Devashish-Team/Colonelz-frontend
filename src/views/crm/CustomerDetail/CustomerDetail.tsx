@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import Container from '@/components/shared/Container'
 import CustomerProfile from './components/CustomerProfile'
-import reducer, { getCustomer, useAppDispatch } from './store'
-import { injectReducer } from '@/store'
+import { injectReducer, setUser } from '@/store'
 import useQuery from '@/utils/hooks/useQuery'
 import MOM from './components/MOM/Mom'
 import { Skeleton, Tabs } from '@/components/ui'
@@ -11,7 +10,7 @@ import TabNav from '@/components/ui/Tabs/TabNav'
 import TabContent from '@/components/ui/Tabs/TabContent'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AllMom from './components/MOM/AllMom'
-import {  apiGetCrmSingleProjectQuotation, apiGetCrmSingleProjects } from '@/services/CrmService'
+import {  apiGetCrmProjectsTaskData, apiGetCrmSingleProjectQuotation, apiGetCrmSingleProjectReport, apiGetCrmSingleProjects, apiGetUsersList } from '@/services/CrmService'
 import { FileItem } from '../FileManager/Components/Project/data'
 import Index from './Quotation'
 import { MomProvider } from './store/MomContext'
@@ -21,20 +20,12 @@ import Activity from './Project Progress/Activity'
 import Timeline from './Timeline/Timeline'
 import { AuthorityCheck } from '@/components/shared'
 import { useRoleContext } from '../Roles/RolesContext'
+import { Tasks } from './store'
 
-injectReducer('crmCustomerDetails', reducer)
 
 const CustomerDetail = () => {
-    const dispatch = useAppDispatch()
     const query = useQuery()
     const [loading, setLoading] = useState(true);
-
-    const fetchData = () => {
-        const id = query.get('lead_id')
-        if (id) {
-            dispatch(getCustomer({ id }))
-        }
-    }
     interface QueryParams {
         id: string;
         project_id: string;
@@ -46,7 +37,6 @@ const CustomerDetail = () => {
     const location = useLocation();
     const role=localStorage.getItem('role');
     const {roleData} = useRoleContext();
-
     const queryParams = new URLSearchParams(location.search);
     const allQueryParams: QueryParams = {
       id: queryParams.get('id') || '',
@@ -55,6 +45,12 @@ const CustomerDetail = () => {
     };
     const [details, setDetails] = useState<any | null>(null);
     const[momdata,setmomdata]= useState<any >(null);
+    const [task,setTaskData]=useState<Tasks[]>([])
+    const [report,setReport]=useState<any>()
+    const [users,setUsers]=useState<any>()
+    const quotationAccess = roleData?.data?.quotation?.read?.includes(`${localStorage.getItem('role')}`)
+    const momAccess = roleData?.data?.mom?.read?.includes(`${localStorage.getItem('role')}`)
+    const taskAccess = roleData?.data?.task?.read?.includes(`${localStorage.getItem('role')}`)
 
     const handleTabChange = (selectedTab:any) => {
       const currentUrlParams = new URLSearchParams(location.search);
@@ -66,10 +62,16 @@ const CustomerDetail = () => {
         const fetchData = async () => {
             try {
                 const response = await apiGetCrmSingleProjects(allQueryParams.project_id);
+                
+                const Report = await apiGetCrmSingleProjectReport(allQueryParams.project_id);
+                const list=await apiGetUsersList(allQueryParams.project_id)
                 const data = response
                 setDetails(data.data[0]);
                 setLoading(false);
                 setmomdata(data.data[0].mom)
+                
+                setReport(Report)
+                setUsers(list.data)
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -89,6 +91,18 @@ const CustomerDetail = () => {
     
         fetchDataAndLog();
       }, []);
+    useEffect(() => {
+        const fetchDataAndLog = async () => {
+          try {
+            const taskResponse = await apiGetCrmProjectsTaskData(allQueryParams.project_id);
+            setTaskData(taskResponse.data)
+          } catch (error) {
+            console.error('Error fetching lead data', error);
+          }
+        };
+    
+        fetchDataAndLog();
+      }, []);
 
       
       return (
@@ -96,38 +110,30 @@ const CustomerDetail = () => {
         <h3 className='pb-5'>Project-{loading?<Skeleton width={100}/>:details?details.project_name:""}</h3>
         <div>
           <ProjectProvider>
-          <MomProvider>
+       
 {loading?<Skeleton height={400}/>:
           <Tabs defaultValue={allQueryParams.mom} onChange={handleTabChange}>
             <TabList>
                 <TabNav value="details">Details</TabNav>
-                <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.quotation?.read??[]}
-                    >
+                {quotationAccess&&
                   <TabNav value="Quotation">Quotation</TabNav>
-                  </AuthorityCheck>
+                }
                   <>
-                  <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.mom?.read??[]}
-                    >
+                 {momAccess&&
                     <TabNav value="mom" >MOM</TabNav>
-                    </AuthorityCheck>
-                    <AuthorityCheck
-                    userAuthority={[`${localStorage.getItem('role')}`]}
-                    authority={roleData?.data?.task?.read??[]}
-                    >
+                 }
+                 {taskAccess&&
                     <TabNav value="task">Task Manager</TabNav>
-                    </AuthorityCheck>
+                 }
                     <AuthorityCheck
                     userAuthority={[`${localStorage.getItem('role')}`]}
                     authority={['ADMIN']}
                     >
                     <TabNav value="activity">Project Activity</TabNav>
                     </AuthorityCheck>
-                   
+                   {taskAccess &&
                     <TabNav value="timeline">Timeline</TabNav>
+                    } 
                   </>
               
             </TabList>
@@ -135,7 +141,7 @@ const CustomerDetail = () => {
                 <TabContent value="details">
                   {loading ? <Skeleton width={150}/> :
                     <Container>
-                        <CustomerProfile data={details}/>
+                        <CustomerProfile data={details} report={report}/>
                     </Container>}
                 </TabContent>
                 <TabContent value="Quotation">
@@ -146,7 +152,7 @@ const CustomerDetail = () => {
                 </TabContent>
               
                 <TabContent value="task">
-                  <Task/>
+                  <Task task={task} users={users}/>
                 </TabContent>
                 <TabContent value="activity">
                   <Activity Data={details} />
@@ -157,7 +163,6 @@ const CustomerDetail = () => {
 
             </div>
         </Tabs>}
-        </MomProvider>
         </ProjectProvider>
     </div>
     </>);

@@ -11,11 +11,9 @@ import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useNavigate } from 'react-router-dom'
 import useQuery from './useQuery'
 import type { SignInCredential, SignUpCredential } from '@/@types/auth'
-import { toast } from '@/components/ui'
-import { useEffect } from 'react'
-import socketIOClient from 'socket.io-client';
 
 type Status = 'success' | 'failed'
+export let role=''
 
 function useAuth() {
     const dispatch = useAppDispatch()
@@ -37,20 +35,22 @@ function useAuth() {
             if (resp.code===200) {
                 const { token } = resp.data
                 console.log('token',resp.data.role);
+                role=resp.data.role
+                console.log(role);
+                
                 dispatch(signInSuccess({ token, userId: resp.data.userID,role:resp.data.role }))
                 if (resp.data) {
                     dispatch(
                         setUser(
                             {
                                 authority: [resp.data.role],
-                                
                             }
                         )
                     )
                 }
                 const redirectUrl = query.get(REDIRECT_URL_KEY)
                 navigate(
-                    redirectUrl ? redirectUrl : ((resp.data.role === 'Jr. Executive HR & Marketing' || resp.data.role === 'Site Supervisor') ? '/app/crm/fileManager' : appConfig.authenticatedEntryPath)
+                    redirectUrl ? redirectUrl : ( appConfig.authenticatedEntryPath)
                   )
                 return {
                     status: 'success',
@@ -91,7 +91,7 @@ function useAuth() {
     }
     const tokens=localStorage.getItem('auth')
     if (tokens) {
-    setTimeout(signOut, 24*60*60*1000);
+    setTimeout(signOut, 60*60*1000);
     }
     return {
         authenticated: token && signedIn,

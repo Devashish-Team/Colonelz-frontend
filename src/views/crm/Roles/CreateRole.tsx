@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { StickyFooter } from '@/components/shared';
 
 type Permission = 'create' | 'read' | 'update' | 'delete';
-type AccessType = 'lead' | 'user' | 'project' | 'task' | 'contract' | 'quotation' | 'file' | 'archive' | 'mom' | 'addMember' | 'role' | 'companyData';
+type AccessType = 'lead' | 'user' | 'project' | 'task' | 'contract' | 'quotation' | 'file' | 'archive' | 'mom' | 'addMember' | 'role' | 'companyData' |'userArchive';
 
 type AccessPermissions = Permission[];
 
@@ -18,7 +18,7 @@ type FormValues = {
 };
 
 const accessTypes: AccessType[] = [
-    'lead', 'user', 'project', 'task', 'contract', 'quotation', 'file', 'archive', 'mom', 'addMember', 'role','companyData'
+    'lead', 'user', 'project', 'task', 'contract', 'quotation', 'file', 'archive', 'mom', 'addMember', 'role','companyData','userArchive'
 ];
 
 const validationSchema = Yup.object().shape(

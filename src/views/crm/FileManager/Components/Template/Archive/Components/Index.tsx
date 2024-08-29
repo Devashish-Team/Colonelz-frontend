@@ -31,6 +31,7 @@ import { AuthorityCheck, ConfirmDialog, StickyFooter } from '@/components/shared
 import NoData from '@/views/pages/NoData'
 import { useRoleContext } from '@/views/crm/Roles/RolesContext'
 import formateDate from '@/store/dateformate'
+import { role } from '@/utils/hooks/useAuth'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -139,11 +140,14 @@ const PaginationTable = () => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
     const { roleData } = useRoleContext()
+    console.log('RoleData:', roleData);
+    
       const [deleteData,setDeleteData]=useState<ArchiveData>()
       const [restoreData,setRestoreData]=useState<Restore>()
       const [dialogIsOpen2, setIsOpen2] = useState(false)
       const [dialogIsOpen3, setIsOpen3] = useState(false)
       const [folderName, setFolderName] = useState<string>('')
+      
   
       const openDialog2 = (file_id:string,lead_id:string,project_id:string,type:string,folder_name:string,sub_folder_name_first:string,sub_folder_name_second:string,delete_type:string) => {
           setIsOpen2(true)
@@ -246,6 +250,10 @@ const PaginationTable = () => {
             )
           }
       }
+
+      
+      console.log(roleData);
+      
     const columns = useMemo<ColumnDef<DataItem>[]>(
         () => [
             {
@@ -306,8 +314,8 @@ const PaginationTable = () => {
             
             {
                 header: 'Actions',
-                accessorKey: 'age',
-                id: 'age',
+                accessorKey: 'action',
+                id: 'action',
                 cell: ({row}) => {
                     const fileId=row.original.files[0].fileId
                     const leadId=row.original.lead_id
@@ -317,12 +325,15 @@ const PaginationTable = () => {
                     const sub_folder_name_first = row.original.sub_folder_name_first || '';
                     const sub_folder_name_second = row.original.sub_folder_name_second || '';
                     const delete_type = row.original.files[0].folder_name ? 'folder' : 'file';
+                    const role = localStorage.getItem('role') || '';
+                    const {roleData} = useRoleContext();
+                    const restoreAccess = roleData?.data?.archive?.restore?.includes(role); 
+                    const deleteAccess = roleData?.data?.archive?.delete?.includes(role);
+
+                    
                   
                         return (<div className='flex gap-3  '>
-                             <AuthorityCheck
-                       userAuthority={[`${localStorage.getItem('role')}`]}
-                       authority={roleData?.data?.archive?.restore??[]}
-                       >
+                            {restoreAccess &&
                                 <Tooltip title="Restore">
                                 <span className="cursor-pointer">
                             <LiaTrashRestoreSolid className='text-xl cursor-pointer hover:text-blue-500' onClick={()=>openDialog3(
@@ -336,11 +347,9 @@ const PaginationTable = () => {
                             )}/>
                             </span>
                             </Tooltip>
-                            </AuthorityCheck>
-                            <AuthorityCheck
-                       userAuthority={[`${localStorage.getItem('role')}`]}
-                       authority={roleData?.data?.archive?.delete??[]}
-                       >
+                }
+                
+                            {deleteAccess &&
                              <Tooltip title="Delete">
                 <span className="cursor-pointer">
                 <MdDeleteOutline
@@ -360,7 +369,7 @@ const PaginationTable = () => {
                             />
                 </span>
             </Tooltip>
-            </AuthorityCheck>
+                }
                             </div>
                         );
                    
@@ -443,7 +452,7 @@ const PaginationTable = () => {
                                             key={header.id}
                                             colSpan={header.colSpan}
                                         >
-                                            {header.isPlaceholder ?  null : (
+                                            {header.isPlaceholder || header.id==='action' ?   null : (
                                                 <div
                                                     {...{
                                                         className:

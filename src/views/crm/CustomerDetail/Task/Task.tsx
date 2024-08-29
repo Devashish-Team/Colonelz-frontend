@@ -29,6 +29,7 @@ import EditTask from './EditTask'
 import NoData from '@/views/pages/NoData'
 import { useRoleContext } from '../../Roles/RolesContext'
 import formateDate from '@/store/dateformate'
+import { Tasks } from '../store'
 
 interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
     value: string | number
@@ -37,25 +38,11 @@ interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>
 }
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
-type Task = {
-    project_id: string;
-    task_id: string;
-    task_name: string;
-    task_description: string;
-    actual_task_start_date: string;
-    actual_task_end_date: string;
-    estimated_task_start_date: string;
-    estimated_task_end_date: string;
-    task_status: string;
-    task_priority: string;
-    task_createdOn: string;
-    reporter: string;
-    task_createdBy: string;
-    number_of_subtasks: number;
-    user_id: string;
-    task_assignee: string;
-    percentage:string;
-};
+
+type Data={
+    task:Tasks[]
+    users:string[]
+  }
 
 
 const pageSizeOption = [
@@ -134,31 +121,29 @@ const statusColors: { [key: string]: string } = {
     'Not Interested': 'bg-red-200 text-red-700',
 };
 
-const Filtering = () => {
+const Filtering = ({task,users}:Data) => {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
     const location=useLocation()
     const queryParams = new URLSearchParams(location.search);
     const projectId=queryParams.get('project_id') || '';
-    const [taskData,setTaskData]=useState<any>(null)
     const [loading,setLoading]=useState(true)
     const [userData,setUserData]=useState<any>(null)
 
     const role=localStorage.getItem('role')
     const {roleData}=useRoleContext()
+    
 
     useEffect(() => {
         const TaskData=async()=>{
-            const response = await apiGetCrmProjectsTaskData(projectId);
             setLoading(false)
-            setTaskData(response.data)
+            
         }
         TaskData();
     }, [projectId])
     useEffect(() => {
         const UserData=async()=>{
-            const response = await apiGetUsersList();
-            setUserData(response.data)
+            setUserData(users)
         }
         UserData();
 
@@ -169,13 +154,15 @@ const Filtering = () => {
 
 
 
-    const ActionColumn = ({ row }: { row: Task}) => {
+    const ActionColumn = ({ row,users }: { row: Tasks,users:any}) => {
         const navigate = useNavigate()
         const { textTheme } = useThemeClass()
         const { roleData } = useRoleContext()
         const data={user_id:localStorage.getItem('userId'),
         project_id:row.project_id,
         task_id:row.task_id}
+        const editAccess = roleData?.data?.task?.update?.includes(`${localStorage.getItem('role')}`)
+        const deleteAccess = roleData?.data?.task?.delete?.includes(`${localStorage.getItem('role')}`)
         const [dialogIsOpen, setIsOpen] = useState(false)
     
         const openDialog = () => {
@@ -211,17 +198,18 @@ const Filtering = () => {
         
         return (
             <div className="flex justify-end text-lg">
-               
+               {editAccess&&
                 <span
                     className={`cursor-pointer p-2  hover:${textTheme}`}>
-                    <EditTask Data={row} task={false}/>
+                    <EditTask Data={row} users={users} task={false}/>
                     
                 </span>
-                
+    }
+    {deleteAccess&&
                 <span className={`cursor-pointer py-2  hover:${textTheme}`}>
                     <MdDeleteOutline onClick={()=>openDialog()}/>   
                 </span>
-    
+    }
                 <ConfirmDialog
               isOpen={dialogIsOpen}
               type="danger"
@@ -248,7 +236,7 @@ const Filtering = () => {
         return `${day}-${month}-${year}`;
         }
 
-    const columns = useMemo<ColumnDef<Task>[]>(
+    const columns = useMemo<ColumnDef<Tasks>[]>(
         () => [
          {
             header:'Name',
@@ -284,7 +272,7 @@ const Filtering = () => {
                 header:'Action',
                 id: 'action',
                 accessorKey:'action',
-                cell: ({row}) => <ActionColumn row={row.original}/>,
+                cell: ({row}) => <ActionColumn row={row.original} users={users}/>,
             }
            
         ],
@@ -293,7 +281,7 @@ const Filtering = () => {
 
 
     const table = useReactTable({
-        data:taskData?taskData:[],
+        data:task?task:[],
         columns,
         filterFns: {
             fuzzy: fuzzyFilter,
@@ -338,7 +326,7 @@ const Filtering = () => {
                     <AddTask project={projectId} userData={userData}/>
                     </AuthorityCheck>
                     </div>
-            {!loading ? taskData.length===0?(<NoData/>):(
+            {!loading ? task?.length===0?(<NoData/>):(
                 <Table>
                 <THead>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -403,7 +391,7 @@ const Filtering = () => {
                 <Pagination
                     pageSize={table.getState().pagination.pageSize}
                     currentPage={table.getState().pagination.pageIndex + 1}
-                    total={taskData?taskData.length:0}
+                    total={task?task.length:0}
                     onChange={onPaginationChange}
                 />
                 <div style={{ minWidth: 130 }}>

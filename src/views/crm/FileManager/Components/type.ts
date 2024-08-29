@@ -23,7 +23,7 @@ export type FileItem = {
   
   export type LeadDataItem = {
     lead_id: string;
-    lead_Name: string;
+    lead_name: string;
     lead_status: string;
     lead_email: string;
     lead_date: string;

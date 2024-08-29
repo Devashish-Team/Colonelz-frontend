@@ -1,6 +1,6 @@
 import { Button, Card, Dropdown, Input } from '@/components/ui';
 import React, { useContext, useEffect, useState } from 'react';
-import { MomData, projectId } from './data';
+import { MomData } from './data';
 import { useLocation } from 'react-router-dom';
 import { apiGetCrmProjectsMom } from '@/services/CrmService';
 import { useMomContext } from '../../store/MomContext';
@@ -77,7 +77,7 @@ const App = () => {
         if (str === undefined) {
           return false;
         }
-        return str.toLowerCase().includes(searchTerm.toLowerCase());
+        return str?.toLowerCase().includes(searchTerm.toLowerCase());
       };
 
       return (

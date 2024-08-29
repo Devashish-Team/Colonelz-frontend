@@ -13,7 +13,6 @@ import type { ColumnDef, Row, ColumnSort, FilterFn } from '@tanstack/react-table
 import type { InputHTMLAttributes, ReactElement } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, DatePicker, Input, Pagination, Select } from '@/components/ui';
-import { useMomContext } from '../../store/MomContext';
 import type { ColumnFiltersState } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import Sorter from '@/components/ui/Table/Sorter';
@@ -85,10 +84,13 @@ type ReactTableProps<T> = {
     getRowCanExpand: (row: Row<T>) => boolean;
     data: Data;
 };
+type Client={
+    client_name:string
+}
 
 type Data = {
-    client_name: string;
-    mom: MOM[];
+    client: Client[];
+    mom: MomData[];
 };
 
 type MOM = {
@@ -104,10 +106,13 @@ type Option={
 function ReactTable({
     renderRowSubComponent,
     getRowCanExpand,
+    data
 }: ReactTableProps<MomData>) {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+    console.log(data);
+    
 
     const columns = useMemo<ColumnDef<MomData>[]>(
         () => [
@@ -168,8 +173,7 @@ function ReactTable({
     );
 
     const location = useLocation();
-    const { leadData } = useMomContext();
-    const { client } = useMomContext();
+    const  leadData  = data.mom
     const {roleData}=useRoleContext()
     
     const projectId = new URLSearchParams(location.search).get('project_id');
@@ -255,7 +259,7 @@ function ReactTable({
                     variant="solid"
                     onClick={() =>
                         navigate(
-                            `/app/crm/project/momform?project_id=${projectId}&client_name=${client?.client_name}`,
+                            `/app/crm/project/momform?project_id=${projectId}&client_name=${data.client[0].client_name}`,
                         )
                     }
                 >
